@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SPBU Pekanbaru</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#e9e1dc",
+              "on-secondary-fixed-variant": "#414c00",
+              "on-secondary": "#ffffff",
+              background: "#fff8f5",
+              "on-surface-variant": "#5a4040",
+              surface: "#fff8f5",
+              "surface-container": "#f5ece7",
+              "on-primary-container": "#fffbff",
+              "secondary-fixed": "#daec7f",
+              "surface-container-high": "#efe6e2",
+              "inverse-surface": "#34302c",
+              "primary-fixed": "#fd0017",
+              secondary: "#576500",
+              "on-secondary-container": "#5b6903",
+              "on-tertiary-fixed-variant": "#5e4200",
+              "surface-tint": "#fd0017",
+              "on-tertiary-fixed": "#271900",
+              "surface-container-lowest": "#ffffff",
+              "primary-container": "#fd0017",
+              "on-primary-fixed-variant": "#fd0017",
+              "inverse-primary": "#ffb3b3",
+              "on-tertiary-container": "#fffbff",
+              "tertiary-fixed": "#ffdea8",
+              "primary-fixed-dim": "#fd0017",
+              "secondary-fixed-dim": "#becf66",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e9e1dc",
+              "on-error": "#ffffff",
+              primary: "#fd0017",
+              "surface-bright": "#fff8f5",
+              "error-container": "#ffdad6",
+              "surface-dim": "#e1d8d4",
+              "on-background": "#1e1b18",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed-dim": "#f2be5e",
+              error: "#ba1a1a",
+              "on-primary-fixed": "#400009",
+              "surface-container-low": "#fbf2ed",
+              tertiary: "#795600",
+              "secondary-container": "#d7e97c",
+              "on-primary": "#ffffff",
+              "on-surface": "#1e1b18",
+              "tertiary-container": "#976d11",
+              "inverse-on-surface": "#f8efea",
+              "on-secondary-fixed": "#191e00",
+              outline: "#8e706f",
+              "outline-variant": "#e2bebd",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              base: "8px",
+              "max-width": "1440px",
+              "gutter-desktop": "24px",
+              "margin-desktop": "80px",
+              "margin-mobile": "20px",
+              "gutter-mobile": "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Hanken Grotesk"],
+              "button-text": ["Hanken Grotesk"],
+              "label-md": ["JetBrains Mono"],
+              "body-sm": ["Hanken Grotesk"],
+              "body-md": ["Hanken Grotesk"],
+              "headline-xl": ["Hanken Grotesk"],
+              "headline-lg-mobile": ["Hanken Grotesk"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "40px",
+                  letterSpacing: "-0.01em",
+                  fontWeight: "700",
+                },
+              ],
+              "button-text": [
+                "16px",
+                { lineHeight: "16px", fontWeight: "600" },
+              ],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "16px",
+                  letterSpacing: "0.05em",
+                  fontWeight: "500",
+                },
+              ],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-xl": [
+                "48px",
+                {
+                  lineHeight: "56px",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "800",
+                },
+              ],
+              "headline-lg-mobile": [
+                "24px",
+                { lineHeight: "32px", fontWeight: "700" },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .map-glass {
+        backdrop-filter: blur(12px);
+      }
+
+      body {
+        min-height: max(884px, 100dvh);
+      }
+
+      #search-dropdown {
+        max-height: 320px;
+        overflow-y: auto;
+      }
+
+      #search-dropdown::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      #search-dropdown::-webkit-scrollbar-thumb {
+        background: #e2bebd;
+        border-radius: 9999px;
+      }
+
+      .spbu-card {
+        animation: fadeUp 0.3s ease both;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #empty-state {
+        display: none;
+      }
+
+      mark {
+        background: rgba(253, 0, 23, 0.12); /* Merah transparan yang lembut */
+        color: #fd0017; /* Teks berubah menjadi merah utama */
+        font-weight: 700; /* Membuat teks yang dicari jadi tebal */
+        border-radius: 4px;
+        padding: 0 2px;
+      }
+
+      header {
+        transition: transform 0.3s ease;
+      }
+
+      /* Kustomisasi Tooltip Leaflet biar putih bersih */
+      .leaflet-tooltip-custom {
+        background-color: white !important;
+        border: 1px solid #e2bebd !important;
+        color: #1e1b18 !important;
+        border-radius: 8px !important;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1) !important;
+        font-family: "Hanken Grotesk", sans-serif !important;
+      }
+      .leaflet-tooltip-custom::before {
+        border-top-color: white !important; /* segitiga panah */
+      }
+
+      iframe {
+        display: block;
+        width: 100%;
+        height: 750px; /* Tingginya dinaikkan dari 700px agar lebih besar */
+        border: none;
+      }
+
+      #map {
+        width: 100vw !important;
+        height: 700px !important;
+        display: block;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-background text-on-background font-body-md selection:bg-primary-fixed selection:text-white"
+  >
+    <header
+      class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-[0px_4px_20px_rgba(45,41,38,0.05)]"
+    >
+      <div
+        class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-max-width mx-auto"
+      >
+        <div class="flex items-center gap-3">
+          <span
+            class="material-symbols-outlined text-primary text-3xl"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >local_gas_station</span
+          >
+          <h1
+            class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg font-bold text-primary"
+          >
+            SPBU Pekanbaru
+          </h1>
+        </div>
+        <nav class="hidden md:flex gap-8">
+          <a
+            class="text-primary border-b-2 border-primary font-bold"
+            href="dashboard.html"
+            >Home</a
+          >
+          <a
+            class="text-on-surface-variant hover:text-primary transition-colors"
+            href="Aboutus.html"
+            >About Us</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="pt-[72px]">
+      <section class="relative h-[530px] md:h-[618px] w-full overflow-hidden">
+        <div class="absolute inset-0 z-0 bg-surface-container-high">
+          <img
+            class="w-full h-full object-cover opacity-80"
+            src="https://images.unsplash.com/photo-1649728424169-cac7ae0157b2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          />
+        </div>
+
+        <div
+          class="absolute top-8 left-1/2 -translate-x-1/2 w-[90%] md:w-[640px] z-10"
+        >
+          <div
+            class="bg-surface/90 map-glass p-2 rounded-full shadow-lg flex items-center border border-outline-variant"
+          >
+            <span class="material-symbols-outlined px-4 text-on-surface-variant"
+              >search</span
+            >
+            <input
+              id="search-input"
+              class="bg-transparent border-none focus:ring-0 w-full py-2 text-body-md placeholder:text-on-surface-variant/60"
+              placeholder="Cari SPBU atau Lokasi..."
+              type="text"
+              autocomplete="off"
+            />
+            <button
+              id="search-btn"
+              class="bg-primary text-white px-6 py-2 rounded-full font-button-text hover:opacity-90 transition-all active:scale-95"
+            >
+              Search
+            </button>
+          </div>
+          <div
+            id="search-dropdown"
+            class="hidden mt-2 bg-surface rounded-xl shadow-xl border border-outline-variant overflow-hidden"
+          ></div>
+        </div>
+      </section>
+
+      <section
+        class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop -mt-8 relative z-20"
+      >
+        <div
+          class="bg-surface p-4 rounded-xl shadow-sm flex items-center gap-4 overflow-x-auto hide-scrollbar border border-outline-variant"
+        >
+          <span class="material-symbols-outlined text-primary flex-shrink-0"
+            >filter_list</span
+          >
+          <div id="filter-chips" class="flex gap-2 whitespace-nowrap">
+            <button
+              data-kecamatan="Semua"
+              class="chip-btn px-4 py-2 rounded-full bg-primary text-white text-body-sm font-semibold"
+            >
+              Semua
+            </button>
+            <button
+              data-kecamatan="Binawidya"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Binawidya
+            </button>
+            <button
+              data-kecamatan="Bukit Raya"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Bukit Raya
+            </button>
+            <button
+              data-kecamatan="Kulim"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Kulim
+            </button>
+            <button
+              data-kecamatan="Lima Puluh"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Lima Puluh
+            </button>
+            <button
+              data-kecamatan="Marpoyan Damai"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Marpoyan Damai
+            </button>
+            <button
+              data-kecamatan="Payung Sekaki"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Payung Sekaki
+            </button>
+            <button
+              data-kecamatan="Pekanbaru Kota"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Pekanbaru Kota
+            </button>
+            <button
+              data-kecamatan="Rumbai Barat"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Rumbai Barat
+            </button>
+            <button
+              data-kecamatan="Rumbai Timur"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Rumbai Timur
+            </button>
+            <button
+              data-kecamatan="Sail"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Sail
+            </button>
+            <button
+              data-kecamatan="Senapelan"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Senapelan
+            </button>
+            <button
+              data-kecamatan="Sukajadi"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Sukajadi
+            </button>
+            <button
+              data-kecamatan="Tenayan Raya"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Tenayan Raya
+            </button>
+            <button
+              data-kecamatan="Tuah Madani"
+              class="chip-btn px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors"
+            >
+              Tuah Madani
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-center mt-6">
+          <section
+            class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl"
+          >
+            <div
+              class="bg-surface-container rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-outline-variant transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span class="material-symbols-outlined text-primary text-3xl mb-2"
+                >local_gas_station</span
+              >
+              <span id="stat-total" class="text-3xl font-bold text-on-surface"
+                >0</span
+              >
+              <span class="text-sm text-on-surface-variant mt-1"
+                >Total SPBU</span
+              >
+            </div>
+            <div
+              class="bg-surface-container rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-outline-variant transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span
+                class="material-symbols-outlined text-secondary text-3xl mb-2"
+                >trending_up</span
+              >
+              <span class="text-2xl font-bold text-on-surface"
+                >Marpoyan Damai</span
+              >
+              <span class="text-sm text-on-surface-variant mt-1"
+                >SPBU Terbanyak</span
+              >
+            </div>
+            <div
+              class="bg-surface-container rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-outline-variant transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span class="material-symbols-outlined text-primary text-3xl mb-2"
+                >bolt</span
+              >
+              <span class="text-3xl font-bold text-on-surface">8</span>
+              <span class="text-sm text-on-surface-variant mt-1"
+                >Aktif 24 Jam</span
+              >
+            </div>
+            <div
+              class="bg-surface-container rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-outline-variant transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span
+                class="material-symbols-outlined text-secondary text-3xl mb-2"
+                >map</span
+              >
+              <span class="text-3xl font-bold text-on-surface">15</span>
+              <span class="text-sm text-on-surface-variant mt-1"
+                >Kecamatan</span
+              >
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section
+        class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-12"
+      >
+        <div class="flex justify-between items-end mb-6">
+          <div>
+            <h2 id="list-title" class="font-headline-lg text-headline-lg">
+              Peta Persebaran SPBU
+            </h2>
+            <p id="list-subtitle" class="text-on-surface-variant">
+              Memuat data peta...
+            </p>
+          </div>
+          <span
+            id="result-count"
+            class="text-sm text-on-surface-variant font-label-md bg-surface-container px-3 py-1 rounded-full border border-outline-variant"
+            >0 SPBU</span
+          >
+        </div>
+
+        <div class="w-full overflow-hidden rounded-2xl shadow-sm mx-auto mb-12">
+          <iframe
+            id="map-iframe"
+            src="qgis2web_2026_05_26-12_00_35_868988/index.html"
+            class="block"
+            onload="syncMapFilter()"
+          >
+          </iframe>
+        </div>
+
+        <div
+          id="empty-state"
+          class="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <span class="material-symbols-outlined text-outline text-6xl mb-4"
+            >search_off</span
+          >
+          <h3 class="text-xl font-bold text-on-surface mb-2">
+            Tidak ada hasil
+          </h3>
+          <p class="text-on-surface-variant">
+            Coba kata kunci atau kecamatan lain.
+          </p>
+        </div>
+
+        <div
+          id="spbu-grid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        ></div>
+
+        <div id="view-all-container" class="flex justify-center mt-10 hidden">
+          <button
+            id="view-all-btn"
+            class="bg-primary text-white px-8 py-3 rounded-full font-button-text font-bold hover:opacity-90 transition-all shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <span class="material-symbols-outlined">expand_more</span> Lihat
+            Semua SPBU
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="bg-surface-container-lowest border-t border-outline-variant mt-16"
+    >
+      <div
+        class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-14"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="material-symbols-outlined text-primary text-4xl"
+                style="font-variation-settings: &quot;FILL&quot; 1"
+                >local_gas_station</span
+              >
+              <h2 class="text-3xl font-bold text-primary">SPBU Pekanbaru</h2>
+            </div>
+            <p class="text-on-surface-variant leading-relaxed max-w-md">
+              Sistem informasi geografis persebaran SPBU di Kota Pekanbaru
+              berbasis web yang membantu pengguna menemukan lokasi SPBU secara
+              cepat, interaktif, dan informatif.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-primary mb-4">Navigasi</h3>
+            <ul class="space-y-3 text-on-surface-variant">
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-primary transition-colors duration-300"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-primary transition-colors duration-300"
+                  >Peta SPBU</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-primary transition-colors duration-300"
+                  >Tentang Kami</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-primary mb-4">
+              Informasi Sistem
+            </h3>
+            <ul class="space-y-3 text-on-surface-variant">
+              <li class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-sm"
+                  >location_on</span
+                ><span id="footer-total">0</span> Titik SPBU
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-sm"
+                  >map</span
+                >15 Kecamatan
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-sm"
+                  >public</span
+                >Web GIS Interaktif
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-outline-variant my-8"></div>
+        <div
+          class="flex flex-col md:flex-row items-center justify-between gap-4"
+        >
+          <p class="text-sm text-on-surface-variant text-center md:text-left">
+            © 2026 SPBU Pekanbaru GIS. All rights reserved.
+          </p>
+          <p class="text-sm text-on-surface-variant text-center md:text-right">
+            Project UAS Sistem Informasi Geografis • Universitas Riau
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <script>
+      // ============================================================
+      // STATE & DATA
+      // ============================================================
+      let SPBU_DATA = [];
+      let activeKecamatan = "Semua";
+      let searchQuery = "";
+      let showAllCards = false;
+
+      // Variabel Peta
+
+      // Konfigurasi Ikon Marker Peta
+
+      // ============================================================
+      // INISIALISASI PETA LEAFLET
+      // ============================================================
+
+      // ============================================================
+      // FUNGSI MEMBACA CSV LOKAL
+      // ============================================================
+      async function loadCSVData() {
+        try {
+          const response = await fetch("SPBU_PKU.csv");
+          if (!response.ok) throw new Error("File CSV tidak ditemukan.");
+
+          const text = await response.text();
+          parseCSV(text);
+
+          document.getElementById("stat-total").textContent = SPBU_DATA.length;
+          document.getElementById("footer-total").textContent =
+            SPBU_DATA.length;
+
+          updateMapAndCards(); // Render peta dan card setelah data siap
+        } catch (error) {
+          console.error("Gagal memuat CSV:", error);
+          document.getElementById("list-subtitle").innerHTML =
+            `<span class="text-red-500">Gagal memuat SPBU_PKU.csv. Pastikan file ada di folder yang sama dan kamu menjalankan Local Server.</span>`;
+        }
+      }
+
+      function parseCSV(text) {
+        const lines = text.split("\n").filter((line) => line.trim() !== "");
+        SPBU_DATA = lines
+          .slice(1)
+          .map((line) => {
+            const p = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            if (p.length >= 6) {
+              return {
+                no: parseInt(p[0]),
+                kecamatan: p[1]?.replace(/"/g, "").trim(),
+                nama: p[2]?.replace(/"/g, "").trim(),
+                alamat: p[3]?.replace(/"/g, "").trim(),
+                lat: parseFloat(p[4]),
+                lng: parseFloat(p[5]),
+              };
+            }
+            return null;
+          })
+          .filter(
+            (item) => item !== null && !isNaN(item.lat) && !isNaN(item.lng),
+          );
+      }
+
+      // ============================================================
+      // HELPERS
+      // ============================================================
+      function highlight(text, query) {
+        if (!query) return text;
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return text.replace(
+          new RegExp(`(${escaped})`, "gi"),
+          "<mark>$1</mark>",
+        );
+      }
+
+      function getMapsUrl(spbu) {
+        // Link Gmaps format koordinat
+        return `https://www.google.com/maps/search/?api=1&query=${spbu.lat},${spbu.lng}`;
+      }
+
+      // ============================================================
+      // UPDATE MAP DAN CARDS (INTI LOGIKA)
+      // ============================================================
+      function getFiltered() {
+        return SPBU_DATA.filter((s) => {
+          const matchKec =
+            activeKecamatan === "Semua" || s.kecamatan === activeKecamatan;
+          const q = searchQuery.toLowerCase();
+          const matchSearch =
+            !q ||
+            s.nama.toLowerCase().includes(q) ||
+            s.alamat.toLowerCase().includes(q) ||
+            s.kecamatan.toLowerCase().includes(q);
+          return matchKec && matchSearch;
+        });
+      }
+
+      function updateMapAndCards() {
+        const filtered = getFiltered();
+        const grid = document.getElementById("spbu-grid");
+        const emptyState = document.getElementById("empty-state");
+        const resultCount = document.getElementById("result-count");
+        const listTitle = document.getElementById("list-title");
+        const listSubtitle = document.getElementById("list-subtitle");
+        const viewAllContainer = document.getElementById("view-all-container"); // Ambil container tombol
+
+        resultCount.textContent = `${filtered.length} SPBU`;
+
+        // Update Teks Judul
+        if (activeKecamatan === "Semua" && !searchQuery) {
+          listTitle.textContent = "Peta Persebaran SPBU";
+          listSubtitle.textContent = `Menampilkan seluruh ${filtered.length} SPBU di Kota Pekanbaru.`;
+        } else if (searchQuery) {
+          listTitle.textContent = `Hasil Pencarian: ${searchQuery}`;
+          listSubtitle.textContent = `Ditemukan ${filtered.length} SPBU.`;
+        } else {
+          listTitle.textContent = `SPBU di ${activeKecamatan}`;
+          listSubtitle.textContent = `Menampilkan ${filtered.length} SPBU di Kecamatan ${activeKecamatan}.`;
+        }
+
+        // Tampilkan/Sembunyikan Empty State
+        if (filtered.length === 0) {
+          grid.innerHTML = "";
+          emptyState.style.display = "flex";
+          viewAllContainer.classList.add("hidden"); // Sembunyikan jika kosong
+          return;
+        }
+        emptyState.style.display = "none";
+
+        // ==========================================
+        // LOGIKA PEMBATASAN 9 CARDS
+        // =========================================
+
+        const viewAllBtn = document.getElementById("view-all-btn");
+        let itemsToRender = filtered;
+
+        // Jika total data yang difilter lebih dari 9
+        if (filtered.length > 9) {
+          viewAllContainer.classList.remove("hidden"); // Tombol harus selalu muncul
+
+          if (!showAllCards) {
+            // Kondisi 1: Saat masih mode ringkas (hanya 9 card)
+            itemsToRender = filtered.slice(0, 9);
+            viewAllBtn.innerHTML = `<span class="material-symbols-outlined">expand_more</span> Lihat Semua SPBU`;
+          } else {
+            // Kondisi 2: Saat mode "Lihat Semua" aktif (tampilkan semua card)
+            itemsToRender = filtered;
+            viewAllBtn.innerHTML = `<span class="material-symbols-outlined">expand_less</span> Sembunyikan`;
+          }
+        } else {
+          // Jika data 9 kebawah, tombol otomatis sembunyi
+          viewAllContainer.classList.add("hidden");
+        }
+
+        // UPDATE CARDS (Ganti objek filtered menjadi itemsToRender)
+        grid.innerHTML = itemsToRender
+          .map(
+            (s, i) => `
+            <div class="spbu-card bg-[#fd0017] text-white rounded-2xl p-5 border border-outline-variant shadow-[0px_4px_20px_rgba(45,41,38,0.05)] hover:-translate-y-1 transition-all" style="animation-delay:${(i % 10) * 40}ms">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-white/20 border border-white/30 text-white text-[10px] font-bold px-2 py-1 rounded tracking-widest flex items-center gap-1 uppercase">
+                        <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        ${highlight(s.kecamatan, searchQuery)}
+                    </span>
+                </div>
+                <h3 class="font-headline-lg-mobile text-[18px] leading-tight font-bold mb-2">${highlight(s.nama, searchQuery)}</h3>
+                <a href="${getMapsUrl(s)}" target="_blank"
+                   class="text-body-sm text-white/80 mb-4 flex items-center gap-1 hover:text-white transition-colors duration-300 group">
+                    <span class="material-symbols-outlined text-sm group-hover:text-white">location_on</span>
+                    <span class="line-clamp-2">${highlight(s.alamat, searchQuery)}</span>
+                </a>
+                <div class="pt-3 border-t border-white/20 flex items-center justify-between">
+                    <a href="${getMapsUrl(s)}" target="_blank"
+                       class="flex items-center gap-1 text-[11px] text-white font-semibold hover:underline cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">open_in_new</span> Buka di Maps
+                    </a>
+                </div>
+            </div>
+        `,
+          )
+          .join("");
+
+        const iframe = document.getElementById("map-iframe");
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ kecamatan: activeKecamatan }, "*");
+        }
+
+        syncMapFilter();
+      }
+      
+
+      // ============================================================
+      // SEARCH DROPDOWN & CHIP ACTIVE STATE
+      // ============================================================
+      function renderDropdown(query) {
+        const dropdown = document.getElementById("search-dropdown");
+        if (!query || query.length < 2) {
+          dropdown.classList.add("hidden");
+          return;
+        }
+
+        const q = query.toLowerCase();
+        const matches = SPBU_DATA.filter(
+          (s) =>
+            s.nama.toLowerCase().includes(q) ||
+            s.alamat.toLowerCase().includes(q) ||
+            s.kecamatan.toLowerCase().includes(q),
+        ).slice(0, 8);
+
+        const kecamatanMatches = [
+          ...new Set(
+            SPBU_DATA.filter((s) => s.kecamatan.toLowerCase().includes(q)).map(
+              (s) => s.kecamatan,
+            ),
+          ),
+        ];
+
+        if (matches.length === 0) {
+          dropdown.innerHTML = `<div class="px-4 py-3 text-body-sm text-on-surface-variant">Tidak ada hasil untuk "<strong>${query}</strong>"</div>`;
+          dropdown.classList.remove("hidden");
+          return;
+        }
+
+        let html = "";
+        if (
+          kecamatanMatches.length > 0 &&
+          kecamatanMatches.some((k) => k.toLowerCase().includes(q))
+        ) {
+          html += `<div class="px-4 pt-3 pb-1 text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Kecamatan</div>`;
+          kecamatanMatches.forEach((kec) => {
+            const count = SPBU_DATA.filter((s) => s.kecamatan === kec).length;
+            html += `
+                <div class="dropdown-item px-4 py-3 flex items-center gap-3 hover:bg-surface-container cursor-pointer transition-colors border-b border-outline-variant/40"
+                     data-type="kecamatan" data-value="${kec}">
+                    <span class="material-symbols-outlined text-secondary text-base">map</span>
+                    <div>
+                        <div class="text-body-sm font-semibold">${highlight(kec, query)}</div>
+                        <div class="text-[11px] text-on-surface-variant">${count} SPBU</div>
+                    </div>
+                </div>`;
+          });
+        }
+
+        html += `<div class="px-4 pt-3 pb-1 text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">SPBU</div>`;
+        matches.forEach((s) => {
+          html += `
+            <div class="dropdown-item px-4 py-3 flex items-center gap-3 hover:bg-surface-container cursor-pointer transition-colors border-b border-outline-variant/40 last:border-0"
+                 data-type="spbu" data-nama="${s.nama}">
+                <span class="material-symbols-outlined text-primary text-base">local_gas_station</span>
+                <div class="min-w-0">
+                    <div class="text-body-sm font-semibold truncate">${highlight(s.nama, query)}</div>
+                    <div class="text-[11px] text-on-surface-variant truncate">${highlight(s.alamat, query)} · ${s.kecamatan}</div>
+                </div>
+            </div>`;
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.classList.remove("hidden");
+
+        dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (item.dataset.type === "kecamatan") {
+              const kec = item.dataset.value;
+              searchQuery = "";
+              document.getElementById("search-input").value = "";
+              setActiveChip(kec);
+              activeKecamatan = kec;
+            } else {
+              searchQuery = item.dataset.nama;
+              document.getElementById("search-input").value = item.dataset.nama;
+              activeKecamatan = "Semua";
+              setActiveChip("Semua");
+            }
+            updateMapAndCards();
+            dropdown.classList.add("hidden");
+            document
+              .getElementById("list-title")
+              .scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
+      }
+
+      function setActiveChip(kecamatan) {
+        document.querySelectorAll(".chip-btn").forEach((btn) => {
+          if (btn.dataset.kecamatan === kecamatan) {
+            btn.classList.add("bg-primary", "text-white");
+            btn.classList.remove(
+              "bg-surface-container-high",
+              "text-on-surface-variant",
+            );
+          } else {
+            btn.classList.remove("bg-primary", "text-white");
+            btn.classList.add(
+              "bg-surface-container-high",
+              "text-on-surface-variant",
+            );
+          }
+        });
+      }
+
+      // Fungsi untuk mengirim data filter ke dalam Peta QGIS
+      function syncMapFilter() {
+          const iframe = document.getElementById("map-iframe");
+          if (iframe && iframe.contentWindow) {
+              // Kirim data kecamatan dan pencarian sekaligus ke dalam iframe QGIS
+              iframe.contentWindow.postMessage({
+                  kecamatan: activeKecamatan,
+                  searchQuery: searchQuery
+              }, "*");
+          }
+      }
+
+      // ============================================================
+      // EVENT LISTENERS
+      // ============================================================
+      document.querySelectorAll(".chip-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeKecamatan = btn.dataset.kecamatan;
+          searchQuery = "";
+          showAllCards = false;
+          document.getElementById("search-input").value = "";
+          document.getElementById("search-dropdown").classList.add("hidden");
+          setActiveChip(activeKecamatan);
+          updateMapAndCards();
+          document
+            .getElementById("list-title")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        renderDropdown(e.target.value.trim());
+      });
+
+      document.getElementById("search-btn").addEventListener("click", () => {
+        searchQuery = document.getElementById("search-input").value.trim();
+        document.getElementById("search-dropdown").classList.add("hidden");
+        setActiveChip("Semua");
+        activeKecamatan = "Semua";
+        updateMapAndCards();
+        document
+          .getElementById("list-title")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      document
+        .getElementById("search-input")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            searchQuery = e.target.value.trim();
+            showAllCards = false;
+            document.getElementById("search-dropdown").classList.add("hidden");
+            setActiveChip("Semua");
+            activeKecamatan = "Semua";
+            updateMapAndCards();
+            document
+              .getElementById("list-title")
+              .scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+
+      document.addEventListener("click", (e) => {
+        if (
+          !e.target.closest("#search-input") &&
+          !e.target.closest("#search-dropdown") &&
+          !e.target.closest("#search-btn")
+        ) {
+          document.getElementById("search-dropdown").classList.add("hidden");
+        }
+      });
+
+      // Aksi ketika tombol Lihat Semua diklik
+      // Aksi ketika tombol Lihat Semua / Sembunyikan diklik
+      document.getElementById("view-all-btn").addEventListener("click", () => {
+        // Membalikkan status: jika true jadi false, jika false jadi true
+        showAllCards = !showAllCards;
+
+        updateMapAndCards(); // Render ulang tampilan kartu
+
+        // UX Tambahan: Jika user memilih "Sembunyikan", otomatis layarnya scroll up
+        // kembali ke judul daftar SPBU agar tidak kaget halamannya mendadak memendek
+        if (!showAllCards) {
+          document
+            .getElementById("list-title")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+
+      // Floating Navbar Setup
+      let lastScroll = 0;
+      window.addEventListener("scroll", () => {
+        const currentScroll = window.pageYOffset;
+        const header = document.querySelector("header");
+        if (currentScroll <= 0) {
+          header.classList.remove("-translate-y-full");
+          return;
+        }
+        if (currentScroll > lastScroll)
+          header.classList.add("-translate-y-full");
+        else header.classList.remove("-translate-y-full");
+        lastScroll = currentScroll;
+      });
+
+      // ============================================================
+      // INIT
+      // ============================================================
+      // Inisialisasi peta terlebih dahulu, baru load data
+      // Sebelum:
+      // initMap();
+      // loadCSVData();
+
+      // Sesudah (Cukup ini saja):
+      loadCSVData();
+    </script>
+  </body>
+</html>
